@@ -1,6 +1,7 @@
 import getpass
 import os.path
 import time
+import platform
 
 import datadog
 import yaml
@@ -46,6 +47,10 @@ class CallbackModule(CallbackBase):
             tags = []
         tags.extend(self.default_tags)
         priority = 'normal' if alert_type == 'error' else 'low'
+
+        if host=='localhost':
+            host=platform.node()
+
         try:
             datadog.api.Event.create(
                 title=title,
@@ -69,6 +74,10 @@ class CallbackModule(CallbackBase):
             if tags is None:
                 tags = []
             tags.append('play:{0}'.format(self.play.name))
+
+        if host=='localhost':
+            host=platform.node()
+        
         self._send_event(
             title,
             alert_type=alert_type,
@@ -95,6 +104,10 @@ class CallbackModule(CallbackBase):
         if tags is None:
             tags = []
         tags.extend(self.default_tags)
+
+        if host=='localhost':
+            host=platform.node()
+
         try:
             datadog.api.Metric.send(
                 metric="ansible.{0}".format(metric),
